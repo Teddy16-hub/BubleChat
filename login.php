@@ -1,87 +1,61 @@
 <?php
 
-class Login
-{
-	private $error = "";
+session_start();
 
-	public function evaluate($data)
+	include("classes/connect.php");
+	include("classes/login.php");
+
+	$email = "";
+	$password = "";
+
+	if($_SERVER['REQUEST_METHOD'] == 'POST')
 	{
 
-		$email = addslashes($data['email']); //function securing the website
-		$password = addslashes($data['password']);
-
-		$query = "select * from users where email = '$email' limit 1 ";
-		$DB = new Database();
-		$result = $DB->read($query);
-		if($result)
+		$login = new Login();
+		$result = $login->evaluate($_POST);
+		if($result != "")
 		{
 
-			$row = $result[0];
-
-			if($this->hash_text($password) == $row['password'])
-			{
-				//create session data
-				$_SESSION['bublechat_userid'] = $row['userid'];
-			}
-			else
-			{
-				$this->error .= "Wrong email or password!<br>";
-			}
-		}
+			echo "<div style='text-align:center;font-size:12px;color:white;background-color:grey';>";
+			echo "<br>The following errors occured!<br><br>";
+			echo $result;
+			echo "</div>";
+		}	
 		else 
 		{
-			$this->error .= "Wrong email or password<br>";
-		}
-		return $this->error;
-	}
 
-	private function hash_text($text)
-	{
-		$text = hash("sha1", $text);
-		return $text;
-	}
-	public function check_login($id)
-	{
-		if(is_numeric($id))
-		{
-
-			$query = "select * from users where userid = '$id' limit 1 ";
-			$DB = new Database();
-			$result = $DB->read($query);
-
-			if($result)
-			{
-
-				$user_data = $result[0];
-				return $user_data;
-			}
-			else
-			{
-				header("Location: login.php");
-				die;
-				/*if($redirect){
-					header("Location: login.php");
-					die;
-				}else{
-
-					$_SESSION['mybook_userid'] = 0;
-				}*/
-			}
-		}
-		else
-		{
-			header("Location: login.php");
+			header("Location: profile.php");
 			die;
-			/*if($redirect){
-					header("Location: login.php");
-					die;
-				}else{
-
-					$_SESSION['mybook_userid'] = 0;
-				}
-			}*/
 		}
-	}
-}
+		
+		$email = $_POST['email'];	
+		$password = $_POST['password'];
+    }
 
 ?>
+
+<html> 
+	<head>
+		<title> Log in | Buble chat</title>
+		<link rel="stylesheet" type="text/css" href="project.css">
+	</head>
+	<body style="font-family: tahoma; background-color: white;">
+		<div id="bar">
+			<div style="font-size: 40px;">Buble Chat</div>
+			<a href="signup.php">
+			<div id="signup_button">Signup</div>
+			</a>
+		</div>
+
+		<div id="login_bar">
+			<form method="post">
+				Log in to Bubble Chat<br><br>
+
+				<input name="email"value="<?php echo $email?>"type="text" id="text" placeholder="Email"><br><br>
+				<input name="password"value="<?php echo $passowrd?>"type="password" id="text" placeholder="Password"><br><br>
+				<input type="submit" id="button" value="Log in">
+				<br><br> 
+			</form>
+		</div>
+	</body> 
+</html>
